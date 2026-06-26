@@ -1,0 +1,49 @@
+package router
+
+import (
+	"time"
+
+	"github.com/goyalg325/whiz/backend/internal/api"
+	"github.com/goyalg325/whiz/backend/internal/user"
+	"github.com/goyalg325/whiz/backend/internal/ws"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+)
+
+var r *gin.Engine
+
+func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler, aiHandler *api.AIHandler) {
+	r = gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:3000"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
+
+	r.POST("/signup", userHandler.CreateUser)
+	r.POST("/login", userHandler.Login)
+	r.GET("/logout", userHandler.Logout)
+
+	r.POST("/ws/createRoom", wsHandler.CreateRoom)
+	r.GET("/ws/joinRoom/:roomId", wsHandler.JoinRoom)
+	r.GET("/ws/getRooms", wsHandler.GetRooms)
+	r.GET("/ws/getClients/:roomId", wsHandler.GetClients)
+	r.GET("/ws/getMessages/:roomId", wsHandler.GetRoomMessages)
+
+	// AI endpoints
+	r.GET("/messages/:messageId/context", aiHandler.GetMessageContext)
+	r.GET("/summaries/missed/:username/:channelName", aiHandler.GetMissedMessagesSummary)
+	r.POST("/activity/:username/:channelName/:messageId", aiHandler.UpdateUserActivity)
+}
+
+func Start(addr string) error {
+	return r.Run(addr)
+}
