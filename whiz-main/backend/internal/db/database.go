@@ -36,7 +36,7 @@ func (d *Database) GetDB() *sql.DB {
 }
 
 // SaveMessage stores a message in the database
-func (d *Database) SaveMessage(content, username string, roomId string) error {
+func (d *Database) SaveMessage(content string, username string, roomId string) error {
 	// Debug logging to track what roomId we're receiving
 	log.Printf("SaveMessage called with roomId: '%s' (type: %T)", roomId, roomId)
 
