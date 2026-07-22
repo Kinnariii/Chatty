@@ -1,4 +1,4 @@
-module github.com/goyalg325/whiz/backend
+module github.com/kinnariii/whiz/backend
 
 go 1.23.0
 
